@@ -4,17 +4,19 @@ import openai
 import datetime
 
 # Get your OpenAI API key from the environment variables
-openai.api_key = os.getenv("OPENAI_API_KEY") 
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # Initialize session state for user accounts and login status
 if 'users' not in st.session_state:
-    st.session_state['users'] = {}  # Dictionary to store usernames and passwords
+    st.session_state['users'] = {
+    }  # Dictionary to store usernames and passwords
 if 'logged_in' not in st.session_state:
     st.session_state['logged_in'] = False
 if 'current_user' not in st.session_state:
     st.session_state['current_user'] = ""
 if 'leaderboard' not in st.session_state:
     st.session_state['leaderboard'] = []  # Leaderboard list to store scores
+
 
 # Function to register a new user
 def register_user(username, password):
@@ -24,14 +26,17 @@ def register_user(username, password):
         st.session_state['users'][username] = password
         st.success("Registration successful! You can now log in.")
 
+
 # Function to log in a user
 def login_user(username, password):
-    if username in st.session_state['users'] and st.session_state['users'][username] == password:
+    if username in st.session_state['users'] and st.session_state['users'][
+            username] == password:
         st.session_state['logged_in'] = True
         st.session_state['current_user'] = username
         st.success(f"Welcome, {username}!")
     else:
         st.error("Incorrect username or password.")
+
 
 # Function to log out a user
 def logout_user():
@@ -39,14 +44,17 @@ def logout_user():
     st.session_state['current_user'] = ""
     st.success("You have been logged out.")
 
+
 # Function to generate a random phishing scenario using OpenAI API
 def generate_scenario():
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[
             {
-                "role": "system",
-                "content": "You are a cybersecurity assistant. Your role is to provide users with phishing scenarios and elaborate on their answers, guiding them in understanding the implications of phishing."
+                "role":
+                "system",
+                "content":
+                "You are a cybersecurity assistant. Your role is to provide users with phishing scenarios and elaborate on their answers, guiding them in understanding the implications of phishing."
             },
             {
                 "role": "user",
@@ -58,10 +66,12 @@ def generate_scenario():
     )
     return response.choices[0].message.content
 
+
 # Function to play the game
 def play_game():
     st.header("Phishing Awareness Game")
-    st.write("Identify if the given email scenario is a phishing attempt or not.")
+    st.write(
+        "Identify if the given email scenario is a phishing attempt or not.")
 
     # Generate a random phishing scenario
     scenario_text = generate_scenario()
@@ -73,9 +83,11 @@ def play_game():
     # Analyze response
     if st.button("Submit Answer"):
         # Mock phishing determination for demonstration purposes
-        is_phishing = "phishing" in scenario_text.lower()  # Simple check (for demo purposes)
+        is_phishing = "phishing" in scenario_text.lower(
+        )  # Simple check (for demo purposes)
 
-        if (answer == "Yes" and is_phishing) or (answer == "No" and not is_phishing):
+        if (answer == "Yes" and is_phishing) or (answer == "No"
+                                                 and not is_phishing):
             st.success("Correct! You've earned 10 points.")
             score = 10
         else:
@@ -91,8 +103,10 @@ def play_game():
         if st.session_state['logged_in']:
             timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             username = st.session_state['current_user']
-            st.session_state['leaderboard'].append((username, score, timestamp))
+            st.session_state['leaderboard'].append(
+                (username, score, timestamp))
             st.write("Your answer has been recorded.")
+
 
 # Function to generate elaboration based on user's answer
 def generate_elaboration(scenario_text, answer):
@@ -100,12 +114,16 @@ def generate_elaboration(scenario_text, answer):
         model="gpt-3.5-turbo",
         messages=[
             {
-                "role": "system",
-                "content": "You are a cybersecurity expert providing feedback on user responses."
+                "role":
+                "system",
+                "content":
+                "You are a cybersecurity expert providing feedback on user responses."
             },
             {
-                "role": "user",
-                "content": f"The user answered '{answer}' for the scenario: '{scenario_text}'. Please provide feedback and elaborate on the implications of phishing."
+                "role":
+                "user",
+                "content":
+                f"The user answered '{answer}' for the scenario: '{scenario_text}'. Please provide feedback and elaborate on the implications of phishing."
             },
         ],
         temperature=1.3,  # Increased creativity
@@ -113,16 +131,22 @@ def generate_elaboration(scenario_text, answer):
     )
     return response.choices[0].message.content
 
+
 # Function to show the leaderboard
 def show_leaderboard():
     st.header("Leaderboard")
     if st.session_state['leaderboard']:
-        leaderboard_sorted = sorted(st.session_state['leaderboard'], key=lambda x: x[1], reverse=True)
+        leaderboard_sorted = sorted(st.session_state['leaderboard'],
+                                    key=lambda x: x[1],
+                                    reverse=True)
         st.write("### Top Scores")
-        for i, (user, score, timestamp) in enumerate(leaderboard_sorted, start=1):
-            st.write(f"{i}. **{user}** - {score} points (Answered at: {timestamp})")
+        for i, (user, score, timestamp) in enumerate(leaderboard_sorted,
+                                                     start=1):
+            st.write(
+                f"{i}. **{user}** - {score} points (Answered at: {timestamp})")
     else:
         st.write("No scores recorded yet.")
+
 
 # Main app flow
 st.title("Phishing Awareness Game with Leaderboard")
@@ -142,7 +166,8 @@ else:
     # Registration section
     st.sidebar.subheader("Register")
     register_username = st.sidebar.text_input("Register Username")
-    register_password = st.sidebar.text_input("Register Password", type="password")
+    register_password = st.sidebar.text_input("Register Password",
+                                              type="password")
     if st.sidebar.button("Register"):
         register_user(register_username, register_password)
 
