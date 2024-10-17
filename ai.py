@@ -47,7 +47,7 @@ def logout_user():
 
 # Function to generate a random phishing scenario using OpenAI API
 def generate_scenario():
-    response = openai.ChatCompletion.create(
+    response = openai.ChatCompletion(
         model="gpt-3.5-turbo",
         messages=[
             {
@@ -110,7 +110,7 @@ def play_game():
 
 # Function to generate elaboration based on user's answer
 def generate_elaboration(scenario_text, answer):
-    response = openai.ChatCompletion.create(
+    response = openai.ChatCompletion(
         model="gpt-3.5-turbo",
         messages=[
             {
