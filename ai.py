@@ -2,7 +2,7 @@ import streamlit as st
 import openai
 import datetime
 
-# Get your OpenAI API key from Streamlit secrets
+# Set OpenAI API key from Streamlit secrets
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 # Initialize session state for user accounts and login status
@@ -40,29 +40,22 @@ def logout_user():
 
 # Function to generate a random phishing scenario using OpenAI API
 def generate_scenario():
-    response = openai.chat_completions.create(  # Updated from openai.ChatCompletion.create
+    response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[
-            {"role": "system", "content": "You are a cybersecurity assistant. Your role is to provide users with phishing scenarios and elaborate on their answers, guiding them in understanding the implications of phishing."},
-            {"role": "user", "content": "Generate a phishing email scenario."},
+            {
+                "role": "system",
+                "content": "You are a cybersecurity assistant. Your role is to provide users with phishing scenarios and elaborate on their answers."
+            },
+            {
+                "role": "user",
+                "content": "Generate a phishing email scenario."
+            },
         ],
         temperature=1.3,
         max_tokens=2000,
     )
-    return response['choices'][0]['message']['content']
-
-# Function to generate elaboration based on user's answer
-def generate_elaboration(scenario_text, answer):
-    response = openai.chat_completions.create(  # Updated from openai.ChatCompletion.create
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "You are a cybersecurity expert providing feedback on user responses."},
-            {"role": "user", "content": f"The user answered '{answer}' for the scenario: '{scenario_text}'. Please provide feedback and elaborate on the implications of phishing."},
-        ],
-        temperature=1.3,
-        max_tokens=2000,
-    )
-    return response['choices'][0]['message']['content']
+    return response.choices[0].message.content
 
 # Function to play the game
 def play_game():
@@ -99,6 +92,25 @@ def play_game():
             username = st.session_state['current_user']
             st.session_state['leaderboard'].append((username, score, timestamp))
             st.write("Your answer has been recorded.")
+
+# Function to generate elaboration based on user's answer
+def generate_elaboration(scenario_text, answer):
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {
+                "role": "system",
+                "content": "You are a cybersecurity expert providing feedback on user responses."
+            },
+            {
+                "role": "user",
+                "content": f"The user answered '{answer}' for the scenario: '{scenario_text}'. Please provide feedback and elaborate on the implications of phishing."
+            },
+        ],
+        temperature=1.3,
+        max_tokens=2000,
+    )
+    return response.choices[0].message.content
 
 # Function to show the leaderboard
 def show_leaderboard():
