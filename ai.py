@@ -40,22 +40,49 @@ def logout_user():
 
 # Function to generate a random phishing scenario using OpenAI API
 def generate_scenario():
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {
-                "role": "system",
-                "content": "You are a cybersecurity assistant. Your role is to provide users with phishing scenarios and elaborate on their answers."
-            },
-            {
-                "role": "user",
-                "content": "Generate a phishing email scenario."
-            },
-        ],
-        temperature=1.3,
-        max_tokens=2000,
-    )
-    return response.choices[0].message.content
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a cybersecurity assistant. Your role is to provide users with phishing scenarios and elaborate on their answers."
+                },
+                {
+                    "role": "user",
+                    "content": "Generate a phishing email scenario."
+                },
+            ],
+            temperature=1.3,
+            max_tokens=2000,
+        )
+        return response.choices[0].message['content']  # Extract the content correctly
+    except Exception as e:
+        st.error(f"Error generating scenario: {e}")
+        return ""
+
+# Function to generate elaboration based on user's answer
+def generate_elaboration(scenario_text, answer):
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a cybersecurity expert providing feedback on user responses."
+                },
+                {
+                    "role": "user",
+                    "content": f"The user answered '{answer}' for the scenario: '{scenario_text}'. Please provide feedback and elaborate on the implications of phishing."
+                },
+            ],
+            temperature=1.3,
+            max_tokens=2000,
+        )
+        return response.choices[0].message['content']
+    except Exception as e:
+        st.error(f"Error generating elaboration: {e}")
+        return ""
 
 # Function to play the game
 def play_game():
@@ -64,53 +91,37 @@ def play_game():
 
     # Generate a random phishing scenario
     scenario_text = generate_scenario()
-    st.write(scenario_text)
+    if scenario_text:
+        st.write(scenario_text)
 
-    # Collect user answer
-    answer = st.radio("Is this email a phishing attempt?", ("Yes", "No"))
+        # Collect user answer
+        answer = st.radio("Is this email a phishing attempt?", ("Yes", "No"))
 
-    # Analyze response
-    if st.button("Submit Answer"):
-        # Mock phishing determination for demonstration purposes
-        is_phishing = "phishing" in scenario_text.lower()  # Simple check (for demo purposes)
+        # Analyze response
+        if st.button("Submit Answer"):
+            # Mock phishing determination for demonstration purposes
+            is_phishing = "phishing" in scenario_text.lower()  # Simple check (for demo purposes)
 
-        if (answer == "Yes" and is_phishing) or (answer == "No" and not is_phishing):
-            st.success("Correct! You've earned 10 points.")
-            score = 10
-        else:
-            st.error("Incorrect. No points earned this time.")
-            score = 0
+            if (answer == "Yes" and is_phishing) or (answer == "No" and not is_phishing):
+                st.success("Correct! You've earned 10 points.")
+                score = 10
+            else:
+                st.error("Incorrect. No points earned this time.")
+                score = 0
 
-        # Elaborate on the user's answer
-        if st.session_state['logged_in']:
-            elaboration = generate_elaboration(scenario_text, answer)
-            st.write(elaboration)
+            # Elaborate on the user's answer
+            if st.session_state['logged_in']:
+                elaboration = generate_elaboration(scenario_text, answer)
+                st.write(elaboration)
 
-        # Record the score with a timestamp if logged in
-        if st.session_state['logged_in']:
-            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            username = st.session_state['current_user']
-            st.session_state['leaderboard'].append((username, score, timestamp))
-            st.write("Your answer has been recorded.")
-
-# Function to generate elaboration based on user's answer
-def generate_elaboration(scenario_text, answer):
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {
-                "role": "system",
-                "content": "You are a cybersecurity expert providing feedback on user responses."
-            },
-            {
-                "role": "user",
-                "content": f"The user answered '{answer}' for the scenario: '{scenario_text}'. Please provide feedback and elaborate on the implications of phishing."
-            },
-        ],
-        temperature=1.3,
-        max_tokens=2000,
-    )
-    return response.choices[0].message.content
+            # Record the score with a timestamp if logged in
+            if st.session_state['logged_in']:
+                timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                username = st.session_state['current_user']
+                st.session_state['leaderboard'].append((username, score, timestamp))
+                st.write("Your answer has been recorded.")
+    else:
+        st.error("Failed to generate phishing scenario.")
 
 # Function to show the leaderboard
 def show_leaderboard():
