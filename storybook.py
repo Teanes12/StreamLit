@@ -49,7 +49,7 @@ def generate_scenario():
             },
             {
                 "role": "user",
-                "content": "Generate a phishing email scenario."
+                "content": "Generae a phishing email scenario."
             },
         ],
         temperature=1.3,
