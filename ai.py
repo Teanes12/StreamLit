@@ -40,7 +40,7 @@ def logout_user():
 
 # Function to generate a random phishing scenario using OpenAI API
 def generate_scenario():
-    response = openai.ChatCompletion.create(
+    response = openai.chat_completions.create(  # Updated from openai.ChatCompletion.create
         model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": "You are a cybersecurity assistant. Your role is to provide users with phishing scenarios and elaborate on their answers, guiding them in understanding the implications of phishing."},
@@ -53,7 +53,7 @@ def generate_scenario():
 
 # Function to generate elaboration based on user's answer
 def generate_elaboration(scenario_text, answer):
-    response = openai.ChatCompletion.create(
+    response = openai.chat_completions.create(  # Updated from openai.ChatCompletion.create
         model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": "You are a cybersecurity expert providing feedback on user responses."},
