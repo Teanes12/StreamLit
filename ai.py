@@ -1,9 +1,11 @@
 import streamlit as st
-import openai
+from openai import OpenAI
 import datetime
 
 # Set OpenAI API key from Streamlit secrets
-openai.api_key = st.secrets["OPENAI_API_KEY"]
+client = OpenAI(
+  api_key=st.secrets['OPENAI_API_KEY'],  # this is also the default, it can be omitted
+)
 
 # Initialize session state for user accounts and login status
 if 'users' not in st.session_state:
